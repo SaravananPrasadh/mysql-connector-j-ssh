@@ -200,7 +200,7 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
     <property name="com.mysql.cj.extra.libs" value="lib" />
 
     <!-- The JDK used to compile the code. -->
-    <property name="com.mysql.cj.build.jdk" value="/usr/lib/jvm/jdk1.8" />
+    <property name="com.mysql.cj.build.jdk" value="D:\\Adoptium8" />
     <property name="com.mysql.cj.build.addDebugInfo" value="yes" />
     <property name="com.mysql.cj.build.noCleanBetweenCompiles" value="no" />
     <property name="com.mysql.cj.build.failOnWarnings" value="no" />

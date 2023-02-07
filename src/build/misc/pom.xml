@@ -32,8 +32,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.mysql</groupId>
-  <artifactId>@MYSQL_CJ_EXTENDED_PROD_NAME@</artifactId>
-  <version>@MYSQL_CJ_VERSION@</version>
+  <artifactId>Connector-8.0-J</artifactId>
+  <version>8.0.1-SSH</version>
   <packaging>jar</packaging>
 
   <name>MySQL Connector/J</name>
@@ -42,7 +42,7 @@
 
   <licenses>
     <license>
-      <name>@MYSQL_CJ_LICENSE_NAME@</name>
+      <name>Apache-2.0</name>
       <distribution>repo</distribution>
       <comments>For detailed license information see the LICENSE file in this distribution.</comments>
     </license>
@@ -55,10 +55,10 @@
 
   <developers>
     <developer>
-      <name>Filipe Silva</name>
-      <email>filipe.silva@oracle.com</email>
-      <organization>Oracle Corporation</organization>
-      <organizationUrl>https://www.oracle.com/</organizationUrl>
+      <name>Saravanan Prasadh</name>
+      <email>Saravanan@twenty20sys.com</email>
+      <organization>Twenty20 Systems</organization>
+      <organizationUrl>https://www.Twenty20Sys.com/</organizationUrl>
     </developer>
   </developers>
 
