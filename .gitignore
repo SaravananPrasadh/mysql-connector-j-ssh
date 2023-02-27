@@ -32,3 +32,5 @@ src/lib/oci-java-sdk-common-2.47.0.jar
 src/lib/opentest4j-1.2.0.jar
 src/lib/protobuf-java-3.21.9.jar
 src/lib/slf4j-api-2.0.3-tests.jar
+src/lib/jsch-0.1.55.jar
+src/lib/slf4j-api-2.0.6.jar
