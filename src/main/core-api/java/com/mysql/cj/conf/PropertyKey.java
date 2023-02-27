@@ -32,6 +32,8 @@ package com.mysql.cj.conf;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.xml.crypto.dsig.keyinfo.KeyName;
+
 /**
  * PropertyKey handles connection property names, their camel-case aliases and case sensitivity.
  */
@@ -277,7 +279,28 @@ public enum PropertyKey {
     xdevapiTlsVersions("xdevapi.tls-versions", "xdevapiTlsVersions", true), //
 
     yearIsDateType("yearIsDateType", true), //
-    zeroDateTimeBehavior("zeroDateTimeBehavior", true) //
+    zeroDateTimeBehavior("zeroDateTimeBehavior", true), 
+    // SP: SSH
+    isBastionMediated("isBastionMediated",true),
+    isSSHTunnelNeeded("isSSHTunnelNeeded",true),
+    SSHAuthMethod("SSHAuthMethod", true),
+    finalSSHHost("finalSSHHost",true),
+    finalSSHPrivatekey("finalSSHPrivatekey", true),
+    finalSSHKnownHosts("finalSSHKnownHosts", true),
+    finalSSHPassword("finalSSHPassword",true),
+    finalSSHTimeout("finalSSHTimeout", true),
+    finalSSHKeepAlive("finalSSHKeepAlive",true),
+    finalSSHKeepAliveRetries("finalSSHKeepAliveRetries",true),
+    BastionHost("BastionHost",true),
+    BastionSSHPrivatekey("BastionSSHPrivatekey", true),
+    BastionSSHKnownHosts("BastionSSHKnownHosts",true),
+    BastionSSHPassword("BastionSSHPassword",true),
+    BastionSSHTimeout("finalSSHTimeout",true),
+    BastionSSHKeepAlive("BastionSSHKeepAlive",true),
+    BastionSSHKeepAliveRetries("BastionSSHKeepAliveRetries",true),
+    SSHLocalPortMax("SSHLocalPortMax",true),
+    SSHLocalPortMin("SSHLocalPortMin",true)
+    //SP
     ;
 
     private String keyName;

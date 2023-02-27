@@ -197,7 +197,8 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
     <property file="build.properties" />
 
     <!-- Location of third-party libraries we don't distribute and extra source files. -->
-    <property name="com.mysql.cj.extra.libs" value="lib" />
+    <property name="com.mysql.cj.extra.libs" value="src/lib" />
+    <property name="com.mysql.cj.extra.libs.pattern" value="jsch-*.jar" />
 
     <!-- The JDK used to compile the code. -->
     <property name="com.mysql.cj.build.jdk" value="D:\\Adoptium8" />
@@ -209,6 +210,8 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
     <property name="com.mysql.cj.build.commercial" value="no" />
     <property name="com.mysql.cj.build.filterLicense" value="no" />
     <property name="com.mysql.cj.build.noCrypto" value="no" />
+    <property name="com.mysql.cj.build.shadedJar" value="yes" />
+
 
     <property name="com.mysql.cj.build.driver.version.major" value="8" />
     <property name="com.mysql.cj.build.driver.version.minor" value="0" />
@@ -258,6 +261,7 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
     <property name="com.mysql.cj.testsuite.unavailable.host" value="" />
     <property name="com.mysql.cj.testsuite.build.dir" value="buildtest" />
     <property name="com.mysql.cj.testsuite.junit.results" value="${com.mysql.cj.testsuite.build.dir}/junit" />
+    
 
     <!-- TODO: Remove as soon as maven relocation artifacts stop being published -->
     <property name="com.mysql.cj.build.driver.extendedNameRelocation" value="mysql-connector-java${com.mysql.cj.dist.packageExtraName}" />
@@ -660,6 +664,14 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
               overwrite="true" />
     </target>
 
+    <!-- Copy the dependency files. -->
+    <target name="-copy-dependencies" if="${com.mysql.cj.build.shadedJar}">
+        <copy todir="${com.mysql.cj.build.dir.driver}/lib" filtering="true" encoding="UTF-8" outputencoding="UTF-8">
+            <fileset dir="${com.mysql.cj.extra.libs}" 
+                includes="${com.mysql.cj.extra.libs.pattern}"/>
+        </copy>
+    </target>    
+
 
     <!-- Replace GPL license headers by commercial license headers (Package). -->
     <target name="-replace-license-headers-pkg" if="${com.mysql.cj.build.commercial}">
@@ -806,7 +818,7 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
              manifest="${com.mysql.cj.build.dir.driver}/META-INF/MANIFEST.MF"
              index="true">
             <fileset dir="${com.mysql.cj.build.compiler.output}"
-                     includes="**/*.class, **/*.properties*"
+                     includes="**/*.class, **/*.properties*, lib/${com.mysql.cj.extra.libs.pattern}"
                      excludes="demo/**, documentation/**, instrumentation/**, testsuite/**" />
             <fileset dir="${com.mysql.cj.build.dir.driver}" includes="INFO_BIN, INFO_SRC, LICENSE, README" />
             <metainf dir="${com.mysql.cj.build.dir.driver}/META-INF" />
@@ -826,6 +838,10 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
             description="Builds the driver, the binary .jar file and creates packages (.zip, .tar.gz) suitable for distribution that do not contain sources."
             depends="-clean-all, build, -set-no-sources, -make-packages, -remove-sources, -create-archives" />
 
+    <!-- Make MySQL Connector/J GPL or commercial licensed binaries packages, that do not contain sources + dependencies. -->
+    <target name="package-no-sources-with-dependencies"
+            description="Builds the driver, the binary .jar file suitable for distribution that do not contain sources and shades dependencies as fat jar"
+            depends=" -set-no-sources, -clean-all, -copy-dependencies, build" />
 
     <!-- Build and install the driver jar into the local maven repository. -->
     <target name="install" description="Builds and installs the driver jar into the local maven repository." depends="package">
