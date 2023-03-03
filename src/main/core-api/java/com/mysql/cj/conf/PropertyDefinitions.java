@@ -119,11 +119,14 @@ public class PropertyDefinitions {
     public static final String CATEGORY_INTEGRATION = Messages.getString("ConnectionProperties.categoryIntegration");
     public static final String CATEGORY_JDBC = Messages.getString("ConnectionProperties.categoryJDBC");
     public static final String CATEGORY_XDEVAPI = Messages.getString("ConnectionProperties.categoryXDevAPI");
+
     public static final String CATEGORY_USER_DEFINED = Messages.getString("ConnectionProperties.categoryUserDefined");
+
+    public static final String CATEGORY_SSH = Messages.getString("ConnectionProperties.categorySSH");
 
     public static final String[] PROPERTY_CATEGORIES = new String[] { CATEGORY_AUTH, CATEGORY_CONNECTION, CATEGORY_SESSION, CATEGORY_NETWORK, CATEGORY_SECURITY,
             CATEGORY_STATEMENTS, CATEGORY_PREPARED_STATEMENTS, CATEGORY_RESULT_SETS, CATEGORY_METADATA, CATEGORY_BLOBS, CATEGORY_DATETIMES, CATEGORY_HA,
-            CATEGORY_PERFORMANCE, CATEGORY_DEBUGING_PROFILING, CATEGORY_EXCEPTIONS, CATEGORY_INTEGRATION, CATEGORY_JDBC, CATEGORY_XDEVAPI };
+            CATEGORY_PERFORMANCE, CATEGORY_DEBUGING_PROFILING, CATEGORY_EXCEPTIONS, CATEGORY_INTEGRATION, CATEGORY_JDBC, CATEGORY_XDEVAPI, CATEGORY_SSH };
 
     /*
      * Property modifiers.
@@ -164,6 +167,10 @@ public class PropertyDefinitions {
 
     public enum DatabaseTerm {
         CATALOG, SCHEMA;
+    }
+    //SP
+    public enum SSHAuth {
+        KEY, USRPASS
     }
 
     /**
@@ -873,8 +880,42 @@ public class PropertyDefinitions {
                 new StringPropertyDefinition(PropertyKey.xdevapiCompressionAlgorithms, "zstd_stream,lz4_message,deflate_stream", RUNTIME_NOT_MODIFIABLE,
                         Messages.getString("ConnectionProperties.xdevapiCompressionAlgorithms"), "8.0.22", CATEGORY_XDEVAPI, Integer.MIN_VALUE),
                 new StringPropertyDefinition(PropertyKey.xdevapiCompressionExtensions, DEFAULT_VALUE_NULL_STRING, RUNTIME_NOT_MODIFIABLE,
-                        Messages.getString("ConnectionProperties.xdevapiCompressionExtensions"), "8.0.22", CATEGORY_XDEVAPI, Integer.MIN_VALUE)
+                        Messages.getString("ConnectionProperties.xdevapiCompressionExtensions"), "8.0.22", CATEGORY_XDEVAPI, Integer.MIN_VALUE), //SP
                 //
+                // SSH Properties
+                //
+                new BooleanPropertyDefinition(PropertyKey.isBastionNeeded, DEFAULT_VALUE_FALSE, RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.isBastionNeeded"), "8.0.0", CATEGORY_SSH, 0),
+                new BooleanPropertyDefinition(PropertyKey.isSSHTunnelNeeded, DEFAULT_VALUE_FALSE, RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.isSSHTunnelNeeded"), "8.0.0", CATEGORY_SSH, 0),
+                new StringPropertyDefinition(PropertyKey.SSHAuthMethod, "KEY", RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.SSHAuthMethod"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new StringPropertyDefinition(PropertyKey.finalSSHHost, "localhost", RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.finalSSHHost"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new StringPropertyDefinition(PropertyKey.finalSSHUser, "ubuntu", RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.finalSSHUser"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new StringPropertyDefinition(PropertyKey.finalSSHPrivatekey, "~/key.pem", RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.finalSSHPrivatekey"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new StringPropertyDefinition(PropertyKey.finalSSHKnownHosts, null, RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.finalSSHKnownHosts"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new StringPropertyDefinition(PropertyKey.finalSSHPassword, null, RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.finalSSHPassword"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new IntegerPropertyDefinition(PropertyKey.finalSSHPort, 22, RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.finalSSHPort"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new StringPropertyDefinition(PropertyKey.BastionSSHHost, "localhost", RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.BastionHost"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new StringPropertyDefinition(PropertyKey.BastionSSHUser, "ubuntu", RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.BastionSSHUser"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new StringPropertyDefinition(PropertyKey.BastionSSHPrivatekey, "~/key.pem", RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.BastionSSHPrivatekey"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new StringPropertyDefinition(PropertyKey.BastionSSHKnownHosts, null, RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.BastionSSHKnownHosts"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new StringPropertyDefinition(PropertyKey.BastionSSHPassword, null, RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.BastionSSHPassword"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new IntegerPropertyDefinition(PropertyKey.BastionSSHPort, 22, RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.BastionSSHPort"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE),
+                new StringPropertyDefinition(PropertyKey.BastionAuthMethod, "KEY", RUNTIME_NOT_MODIFIABLE,
+                        Messages.getString("ConnectionProperties.BastionAuthMethod"), "8.0.0", CATEGORY_SSH, Integer.MIN_VALUE)
         };
 
         HashMap<PropertyKey, PropertyDefinition<?>> propertyKeyToPropertyDefinitionMap = new HashMap<>();

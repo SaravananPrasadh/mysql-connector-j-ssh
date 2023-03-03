@@ -29,55 +29,32 @@
 
 package com.mysql.cj;
 
+import com.mysql.cj.conf.HostInfo;
+import com.mysql.cj.conf.PropertyKey;
+import com.mysql.cj.conf.PropertySet;
+import com.mysql.cj.conf.RuntimeProperty;
+import com.mysql.cj.exceptions.*;
+import com.mysql.cj.interceptors.QueryInterceptor;
+import com.mysql.cj.log.Log;
+import com.mysql.cj.protocol.*;
+import com.mysql.cj.protocol.Resultset.Type;
+import com.mysql.cj.protocol.a.*;
+import com.mysql.cj.result.*;
+import com.mysql.cj.util.StringUtils;
+import com.mysql.cj.util.SSHonJSch;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.net.SocketAddress;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Timer;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
+import com.jcraft.jsch.JSchException;
 
-import com.mysql.cj.conf.HostInfo;
-import com.mysql.cj.conf.PropertyKey;
-import com.mysql.cj.conf.PropertySet;
-import com.mysql.cj.conf.RuntimeProperty;
-import com.mysql.cj.exceptions.CJCommunicationsException;
-import com.mysql.cj.exceptions.CJException;
-import com.mysql.cj.exceptions.ConnectionIsClosedException;
-import com.mysql.cj.exceptions.ExceptionFactory;
-import com.mysql.cj.exceptions.ExceptionInterceptor;
-import com.mysql.cj.exceptions.ExceptionInterceptorChain;
-import com.mysql.cj.exceptions.MysqlErrorNumbers;
-import com.mysql.cj.exceptions.OperationCancelledException;
-import com.mysql.cj.interceptors.QueryInterceptor;
-import com.mysql.cj.log.Log;
-import com.mysql.cj.protocol.ColumnDefinition;
-import com.mysql.cj.protocol.NetworkResources;
-import com.mysql.cj.protocol.ProtocolEntityFactory;
-import com.mysql.cj.protocol.Resultset;
-import com.mysql.cj.protocol.Resultset.Type;
-import com.mysql.cj.protocol.SocketConnection;
-import com.mysql.cj.protocol.SocketFactory;
-import com.mysql.cj.protocol.a.NativeMessageBuilder;
-import com.mysql.cj.protocol.a.NativePacketPayload;
-import com.mysql.cj.protocol.a.NativeProtocol;
-import com.mysql.cj.protocol.a.NativeServerSession;
-import com.mysql.cj.protocol.a.NativeSocketConnection;
-import com.mysql.cj.protocol.a.ResultsetFactory;
-import com.mysql.cj.result.Field;
-import com.mysql.cj.result.LongValueFactory;
-import com.mysql.cj.result.Row;
-import com.mysql.cj.result.StringValueFactory;
-import com.mysql.cj.result.ValueFactory;
-import com.mysql.cj.util.StringUtils;
+
+
 
 public class NativeSession extends CoreSession implements Serializable {
 
@@ -108,10 +85,72 @@ public class NativeSession extends CoreSession implements Serializable {
     }
 
     public void connect(HostInfo hi, String user, String password, String database, int loginTimeout, TransactionEventHandler transactionManager)
-            throws IOException {
+    throws IOException {
+        // Use this portion to decide whether the host and port stays the same or not
+        boolean isBastionHost = this.propertySet.getBooleanProperty(PropertyKey.isBastionNeeded).getValue();
+        boolean isSSHTunnelNeeded = this.propertySet.getBooleanProperty(PropertyKey.isSSHTunnelNeeded).getValue();
+        int PortToBeOverridden = 0;
 
-        this.hostInfo = hi;
-
+        // lets seperate the flow to normal and SSH
+        if (isBastionHost && isSSHTunnelNeeded) {
+            // lets get the bastion host and port and other details
+            String bastionHost = this.propertySet.getStringProperty(PropertyKey.BastionSSHHost).getValue();
+            int bastionPort = this.propertySet.getIntegerProperty(PropertyKey.BastionSSHPort).getValue();
+            String bastionUser = this.propertySet.getStringProperty(PropertyKey.BastionSSHUser).getValue();
+            String bastionPassword = this.propertySet.getStringProperty(PropertyKey.BastionSSHPassword).getValue();
+            String bastionKeyFile = this.propertySet.getStringProperty(PropertyKey.BastionSSHPrivatekey).getValue();
+            String bastionauthType = this.propertySet.getStringProperty(PropertyKey.BastionAuthMethod).getValue();
+            String bastionKnownHosts = this.propertySet.getStringProperty(PropertyKey.BastionSSHKnownHosts).getValue();
+            String finalsshHost = this.propertySet.getStringProperty(PropertyKey.finalSSHHost).getValue();
+            int finalsshPort = this.propertySet.getIntegerProperty(PropertyKey.finalSSHPort).getValue();
+            // let's get the local port forwarded on the remote bastion host
+            int localPortH1 = 0;
+            try {
+                localPortH1 = new SSHonJSch().getSSHTunnel(bastionHost, bastionPort, bastionUser, bastionPassword, bastionKeyFile, bastionauthType,
+                        bastionKnownHosts, finalsshHost, finalsshPort );
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            // let's do the final ssh tunnel
+            String finalsshUser = this.propertySet.getStringProperty(PropertyKey.finalSSHUser).getValue();
+            String finalPassword = this.propertySet.getStringProperty(PropertyKey.finalSSHPassword).getValue();
+            String finalKeyFile = this.propertySet.getStringProperty(PropertyKey.finalSSHPrivatekey).getValue();
+            String sshauthType = this.propertySet.getStringProperty(PropertyKey.SSHAuthMethod).getValue();
+            String finalKnownHosts = this.propertySet.getStringProperty(PropertyKey.finalSSHKnownHosts).getValue();
+            int localPortH2 = 0;
+            try {
+                localPortH2 = new SSHonJSch().getSSHTunnel("localhost", localPortH1, finalsshUser, finalPassword, finalKeyFile, sshauthType, finalKnownHosts,
+                        hi.getHost(), hi.getPort());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            // lets override the port
+            PortToBeOverridden = localPortH2;
+        } else if ( isSSHTunnelNeeded && !isBastionHost){
+            // lets do the final ssh tunnel
+            String finalsshHost = this.propertySet.getStringProperty(PropertyKey.finalSSHHost).getValue();
+            int finalsshPort = this.propertySet.getIntegerProperty(PropertyKey.finalSSHPort).getValue();
+            String finalsshUser = this.propertySet.getStringProperty(PropertyKey.finalSSHUser).getValue();
+            String finalPassword = this.propertySet.getStringProperty(PropertyKey.finalSSHPassword).getValue();
+            String finalKeyFile = this.propertySet.getStringProperty(PropertyKey.finalSSHPrivatekey).getValue();
+            String sshauthType = this.propertySet.getStringProperty(PropertyKey.SSHAuthMethod).getValue();
+            String finalKnownHosts = this.propertySet.getStringProperty(PropertyKey.finalSSHKnownHosts).getValue();
+            int localPortH2 = 0;
+            try {
+                localPortH2 = new SSHonJSch().getSSHTunnel(finalsshHost, finalsshPort, finalsshUser, finalPassword, finalKeyFile, sshauthType, finalKnownHosts,
+                        hi.getHost(), hi.getPort());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            // lets override the port
+            PortToBeOverridden = localPortH2;
+        }
+        // Now we need to mess with the hostinfo object
+        if (PortToBeOverridden != 0) {
+            this.hostInfo = new HostInfo(null, "localhost", PortToBeOverridden, hi.getUser(), hi.getPassword(), hi.getHostProperties());
+        } else {
+            this.hostInfo = hi;
+        }
         // reset max-rows to default value
         this.setSessionMaxRows(-1);
 

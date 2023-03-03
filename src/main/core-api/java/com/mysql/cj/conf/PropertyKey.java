@@ -277,8 +277,26 @@ public enum PropertyKey {
     xdevapiTlsVersions("xdevapi.tls-versions", "xdevapiTlsVersions", true), //
 
     yearIsDateType("yearIsDateType", true), //
-    zeroDateTimeBehavior("zeroDateTimeBehavior", true) //
+    zeroDateTimeBehavior("zeroDateTimeBehavior", true), //
+    // SP: SSH
+    isBastionNeeded("isBastionNeeded",true),
+    isSSHTunnelNeeded("isSSHTunnelNeeded",true),
+    SSHAuthMethod("SSHAuthMethod", true),
+    finalSSHHost("finalSSHHost",true),
+    finalSSHPrivatekey("finalSSHPrivatekey", true),
+    finalSSHUser("finalSSHUser", true),
+    finalSSHKnownHosts("finalSSHKnownHosts", true),
+    finalSSHPassword("finalSSHPassword",true),
+    finalSSHPort("finalSSHPort",true),
+    BastionSSHHost("BastionSSHHost",true),
+    BastionSSHUser("BastionSSHUser",true),
+    BastionSSHPrivatekey("BastionSSHPrivatekey", true),
+    BastionSSHKnownHosts("BastionSSHKnownHosts",true),
+    BastionSSHPassword("BastionSSHPassword",true),
+    BastionSSHPort("BastionSSHPort",true),
+    BastionAuthMethod("BastionAuthMethod", true)
     ;
+    //SP
 
     private String keyName;
     private String ccAlias = null;
