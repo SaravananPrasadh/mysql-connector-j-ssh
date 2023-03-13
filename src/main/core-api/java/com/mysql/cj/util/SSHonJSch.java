@@ -4,7 +4,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
-public class SSHonJSch {
+public class SSHonJSch extends Util {
 
     public int getSSHTunnel(String sessionhost, int sessionPort, String sessionUser, String sessionPassword, String sessionKeyFile, String authType,
             String sessionKnownHosts, String finalsshHost, int finalsshPort) throws Exception, JSchException {

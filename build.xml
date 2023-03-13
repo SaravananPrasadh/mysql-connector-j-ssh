@@ -198,7 +198,7 @@
 
     <!-- Location of third-party libraries we don't distribute and extra source files. -->
     <property name="com.mysql.cj.extra.libs" value="lib" />
-    <property name="com.mysql.cj.extra.libs.pattern" value="jsch-*.jar" />
+    <property name="com.mysql.cj.extra.libs.pattern" value="*.jar" />
 
     <!-- The JDK used to compile the code. -->
     <property name="com.mysql.cj.build.jdk" value="D:\\Adoptium8" />
@@ -215,7 +215,7 @@
 
     <property name="com.mysql.cj.build.driver.version.major" value="8" />
     <property name="com.mysql.cj.build.driver.version.minor" value="0" />
-    <property name="com.mysql.cj.build.driver.version.subminor" value="32" />
+    <property name="com.mysql.cj.build.driver.version.subminor" value="33" />
     <property name="com.mysql.cj.build.driver.version.status" value="" />
     <property name="com.mysql.cj.build.driver.version.series" value="${com.mysql.cj.build.driver.version.major}.${com.mysql.cj.build.driver.version.minor}" />
     <property name="com.mysql.cj.build.driver.version.numeric"
@@ -254,7 +254,7 @@
     <property name="com.mysql.cj.docs.xdevapi" value="docs" />
 
     <property name="com.mysql.cj.testsuite.jvm" value="${com.mysql.cj.build.jdk}" />
-    <property name="com.mysql.cj.testsuite.url" value="" />
+    <property name="com.mysql.cj.testsuite.url" value="jdbc:mysql://10.0.128.110:3306/mysqltest?BastionSSHHost=ec2-65-0-184-47.ap-south-1.compute.amazonaws.com&amp;BastionSSHPrivatekey=C:\\Users\\sp\\Downloads\\BastionMySQLKey.pem&amp;isBastionNeeded=true&amp;isSSHTunnelNeeded=true&amp;finalSSHHost=10.0.128.110&amp;finalSSHPrivatekey=C:\\Users\\sp\\Downloads\\BastionMySQLKey.pem&amp;user=root&amp;password=MySQL8;" />
     <property name="com.mysql.cj.testsuite.mysqlx.url" value="" />
     <property name="com.mysql.cj.testsuite.test.class" value="" />
     <property name="com.mysql.cj.testsuite.test.methods" value="" />

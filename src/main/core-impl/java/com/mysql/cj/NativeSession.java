@@ -106,7 +106,9 @@ public class NativeSession extends CoreSession implements Serializable {
             // let's get the local port forwarded on the remote bastion host
             int localPortH1 = 0;
             try {
-                localPortH1 = new SSHonJSch().getSSHTunnel(bastionHost, bastionPort, bastionUser, bastionPassword, bastionKeyFile, bastionauthType,
+                // Lets do the Bastion to final SSH tunnel
+                SSHonJSch throughBastion = new SSHonJSch();
+                localPortH1 = throughBastion.getSSHTunnel(bastionHost, bastionPort, bastionUser, bastionPassword, bastionKeyFile, bastionauthType,
                         bastionKnownHosts, finalsshHost, finalsshPort );
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -117,15 +119,14 @@ public class NativeSession extends CoreSession implements Serializable {
             String finalKeyFile = this.propertySet.getStringProperty(PropertyKey.finalSSHPrivatekey).getValue();
             String sshauthType = this.propertySet.getStringProperty(PropertyKey.SSHAuthMethod).getValue();
             String finalKnownHosts = this.propertySet.getStringProperty(PropertyKey.finalSSHKnownHosts).getValue();
-            int localPortH2 = 0;
             try {
-                localPortH2 = new SSHonJSch().getSSHTunnel("localhost", localPortH1, finalsshUser, finalPassword, finalKeyFile, sshauthType, finalKnownHosts,
+                // Lets do the Final SSH Tunnel, via Bastion
+                SSHonJSch throughBastionEndSSH = new SSHonJSch();
+                PortToBeOverridden = throughBastionEndSSH.getSSHTunnel("localhost", localPortH1, finalsshUser, finalPassword, finalKeyFile, sshauthType, finalKnownHosts,
                         hi.getHost(), hi.getPort());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            // lets override the port
-            PortToBeOverridden = localPortH2;
         } else if ( isSSHTunnelNeeded && !isBastionHost){
             // lets do the final ssh tunnel
             String finalsshHost = this.propertySet.getStringProperty(PropertyKey.finalSSHHost).getValue();
@@ -135,17 +136,16 @@ public class NativeSession extends CoreSession implements Serializable {
             String finalKeyFile = this.propertySet.getStringProperty(PropertyKey.finalSSHPrivatekey).getValue();
             String sshauthType = this.propertySet.getStringProperty(PropertyKey.SSHAuthMethod).getValue();
             String finalKnownHosts = this.propertySet.getStringProperty(PropertyKey.finalSSHKnownHosts).getValue();
-            int localPortH2 = 0;
             try {
-                localPortH2 = new SSHonJSch().getSSHTunnel(finalsshHost, finalsshPort, finalsshUser, finalPassword, finalKeyFile, sshauthType, finalKnownHosts,
+                // Lets do the Final SSH Tunnel, Without Bastion, direct SSH Tunnel
+                SSHonJSch directEndSSH = new SSHonJSch();
+                PortToBeOverridden = directEndSSH.getSSHTunnel(finalsshHost, finalsshPort, finalsshUser, finalPassword, finalKeyFile, sshauthType, finalKnownHosts,
                         hi.getHost(), hi.getPort());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            // lets override the port
-            PortToBeOverridden = localPortH2;
         }
-        // Now we need to mess with the hostinfo object
+        // Lets build a new hostinfo object and override the port
         if (PortToBeOverridden != 0) {
             this.hostInfo = new HostInfo(null, "localhost", PortToBeOverridden, hi.getUser(), hi.getPassword(), hi.getHostProperties());
         } else {
@@ -186,6 +186,7 @@ public class NativeSession extends CoreSession implements Serializable {
         if (this.protocol != null) {
             try {
                 ((NativeProtocol) this.protocol).quit();
+                // Lets close the tunnel to better clean up
             } catch (Exception e) {
             }
 
