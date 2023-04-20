@@ -35,6 +35,8 @@ public class SSHonJSch extends Util {
         } else {
             LocalToSSHSession.setConfig("StrictHostKeyChecking", "no");
         }
+        // Set KeepAlive at 30 seconds
+        LocalToSSHSession.setServerAliveInterval(30000);
         // connect to the bastion host
         LocalToSSHSession.connect();
         // forward the local available port to the final ssh remote port
